@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:aop="http://www.springframework.org/schema/aop" 
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd" 
+       default-lazy-init="true">
+
+<!-- hibernate -->
+	<!-- sessionFactory配置的是Session工厂对象，专门用于生产Session对象 -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="packagesToScan">
+			<list>
+				<!--配置的value标签用来设定扫描映射类的范围 -->
+				<value>com.hodo.bean</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<!--hibernate.dialect指的数据库方言，用于与具体的数据库交互 -->
+ 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">none</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<!--下面的配置暂时无需理解 -->
+				<prop key="hibernate.jdbc.fetch_size">30</prop>
+				<prop key="hibernate.jdbc.batch_size">30</prop>
+				<prop key="hibernate.jdbc.batch_versioned_data">true</prop>
+				<prop key="hibernate.cache.use_second_level_cache">true</prop>
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</prop>
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory</prop>
+				
+				<prop key="hibernate.query.substitution">true 1,false 0</prop>
+				<prop key="hibernate.default_batch_fetch_size">16</prop>
+				<prop key="hibernate.max_fetch_depth">5</prop>
+				<prop key="hibernate.generate_statistics">true</prop>
+				<prop key="hibernate.session.events.log">false</prop>
+				<prop key="hibernate.bytecode.use_reflection_optimizer">true</prop>
+				<!--使用getCurrentSession()方法，必须配置此属性 -->
+				<!--加上报错createQuery is not valid without active transaction -->
+<!-- 				<prop key="hibernate.current_session_context_class">thread</prop>  -->
+			</props>
+		</property>
+	</bean>
+	<!-- 配置声明式事务的事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<!--配置了声明式事务管理器，意味着Hibernate的Session的创建、关闭和销毁都由该管理器管理 -->
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	
+	<!--声明式事务容器配置，配置事务的规则；指定哪些操作需要配置事务 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!--Spring的事务是以方法为粒度的，事务是配置在具体的方法上，事务的起始点就是所配置的方法的开头，结束点就是所配置方法的结尾 -->
+			<tx:method name="save*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="change*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+			<tx:method name="del*" propagation="REQUIRED"/>
+			<tx:method name="edit*" propagation="REQUIRED"/>
+			<tx:method name="upDateOrAdd*" propagation="REQUIRED"/>
+			<tx:method name="add*" propagation="REQUIRED"/>
+			<tx:method name="pass*" propagation="REQUIRED"/>
+			<tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="query*" propagation="REQUIRED" read-only="true"/>
+			
+			<tx:method name="*" propagation="REQUIRES_NEW" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!--配置AOP监听器，使之前的事务配置起作用 -->
+	<aop:aspectj-autoproxy expose-proxy="true"/>
+	
+	<aop:config expose-proxy="true">
+		<!--切点配置，限定了添加事务的方法范围 -->
+		<aop:pointcut expression="execution(* com.hodo.service.*Service.*(..))" id="txPointcut"/>
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"/>
+	</aop:config> 
+
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+

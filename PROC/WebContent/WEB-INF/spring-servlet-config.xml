@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:p="http://www.springframework.org/schema/p" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:mvc="http://www.springframework.org/schema/mvc" 
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+       http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd 
+	   http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+	
+	<!-- 配置控制器搜索器 -->
+	<!-- base-package是用于配置控制器的搜索范围，use-default-filters
+	属性为true时，则在控制器中如果搜索到相关的@Autowired注解，当发现注解对应的对象未生成，
+	则会自动生成该对象；use-default-filters	属性为false时，则不会自动生成该对象 -->
+	<context:component-scan base-package="com.hodo" use-default-filters="false">
+		<!-- org.springframework.stereotype.Controller用于配置所要搜索的控制器注解 -->
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	<!-- 控制器页面跳转配置
+	p:prefix属性配置了存放所跳转页面的根目录
+	p:suffix属性配置了所要跳转页面文件的后缀名 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" p:prefix="/WEB-INF/views/" p:suffix=".jsp" />
+	<!-- 
+	当配置了mvc:annotation-driven/后，Spring就知道了我们启用注解驱动。
+	然后Spring通过context:component-scan/标签的配置，
+	会自动为我们将扫描到的@Component，@Controller，@Service，@Repository
+	等注解标记的组件注册到工厂中，来处理我们的请求。 
+	-->
+	<mvc:annotation-driven/>
+	<!-- 静态资源配置 -->
+ 	<mvc:resources mapping="/static/**" location="/static/" />
+ 	<mvc:resources mapping="/files/**" location="/files/" />
+ 	<mvc:resources mapping="/music/**" location="/music/" />
+ 	<mvc:resources mapping="/mv/**" location="/mv/" />
+ 	<mvc:resources mapping="/albumPic/**" location="/albumPic/" />
+ 	<mvc:resources mapping="/singerPic/**" location="/singerPic/" />
+ 	<mvc:resources mapping="/songPic/**" location="/songPic/" />
+ 	<mvc:resources mapping="/icon/**" location="/icon/" />
+  	<mvc:resources mapping="/upload/**" location="/upload/" />
+	<mvc:resources mapping="/jsp/**" location="/jsp/" />
+	
+	
+	<!-- 处理文件上传的配置，该bean的id不能随便更改 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 配置默认编码格式 -->
+		<property name="defaultEncoding" value="UTF-8"/>
+		<!-- 配置文件的最大上传容量（本次提交的所有文件的最大总容量） ，以字节为单位-->
+		<property name="maxUploadSize" value="104800000"/>
+		<!-- 配置缓存容量 -->
+		<property name="maxInMemorySize" value="4096"/>
+	</bean>
+	
+	<!-- 配置文件上传异常的处理类 -->
+	<bean id="uploadExceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<!-- 如果文件最大容量超标，则跳转 -->
+				<prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">error/upload_size_error</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!--===shiro==-注解方式开启======= -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
+		<property name="proxyTargetClass" value="true" />
+	</bean>
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<!--登录 -->
+				<prop key="org.apache.shiro.authz.UnauthenticatedException">
+					redirect:/refuse.jsp
+				</prop>
+				<!--授权 -->
+				<prop key="org.apache.shiro.authz.UnauthorizedException">
+					redirect:/refuse.jsp
+				</prop>
+			</props>
+		</property>
+	</bean>
+	<!--===shiro==-如果使用注解方式验证将下面代码放开======= -->
+</beans>
+
+
+
+
+
+

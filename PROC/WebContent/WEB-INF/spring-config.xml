@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:aop="http://www.springframework.org/schema/aop" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd" 
+       default-lazy-init="true">
+       
+	<context:component-scan base-package="com.hodo"><!-- base-package是用于配置控制器的搜索范围 -->
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/><!-- org.springframework.stereotype.Controller用于配置所要搜索的控制器注解 -->
+	</context:component-scan>
+	<!-- 在 spring-mvc.xml 中通过<mvc:annotation-driven />开启@ResponseBody注解 -->
+	<mvc:annotation-driven />
+	
+	<bean id="ehCacheManager" class ="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">  
+   	 	<property name="configLocation" value="classpath:ehcache.xml" />  
+    	<property name="shared" value="true"></property>  
+	</bean>	
+	
+	<!-- 配置数据源 -->
+	<import resource="/dataSource.xml"/>
+    <import resource="/hibernate.xml"/>
+<!--     <import resource="/mybatis.xml"/> -->
+    <import resource="/shiro.xml"/>
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+

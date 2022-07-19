@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="docSec"
+  id="myeclipse.1542777528309"
+  context-root="/docsec"
+  j2ee-spec="6.0"
+  archive="docSec.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebContent" />
+  </attributes>
+</project-module>
+

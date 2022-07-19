@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd" 
+       default-lazy-init="true">
+       
+	<!-- mybatis -->
+	<!-- 连接工厂,来访问数据源和映射文件.--><!-- 配置Mybatis的 SqlSessionFactoryBean-->
+	<bean id="mybatisSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		 <!-- 自动扫描mapping.xml文件 -->  
+		<property name="mapperLocations" value="classpath:com/hodo/mapper/*.xml"></property>
+		<!-- 配置mybatis的日志记录 -->
+		<property name="configLocation" value="/WEB-INF/mybatis-config.xml"></property>
+	</bean>
+
+	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->  
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.hodo.dao.mapper"></property>
+		<property name="sqlSessionFactoryBeanName" value="mybatisSqlSessionFactory"></property>
+	</bean>
+    
+    <!--事务管理器 -->  <!-- 把datasource委托给DataSourceTransactionManager-->
+    <bean id="mybatisTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    
+	<!-- 使用注解事务，需要添加Transactional注解属性 --> <!-- 事务管理,加入对事务的支持 -->
+    <tx:annotation-driven transaction-manager="mybatisTransactionManager"/>
+
+
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
